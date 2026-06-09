@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Instagram Unfollowers & Followers Tracker</title>
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #09090b; /* Zinc 950 */
+            --card-bg: #18181b; /* Zinc 900 */
+            --card-border: #27272a; /* Zinc 800 */
+            --text-primary: #fafafa; /* Zinc 50 */
+            --text-secondary: #a1a1aa; /* Zinc 400 */
+            --primary: #3b82f6; /* Blue 500 */
+            --danger: #ef4444;
+            --success: #22c55e;
+            --warning: #eab308;
+            --transition: all 0.15s ease-in-out;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            font-family: 'Inter', system-ui, sans-serif;
+            min-height: 100vh;
+            padding: 2.5rem 1.5rem;
+            line-height: 1.5;
+        }
+
+        .container {
+            max-width: 1060px;
+            margin: 0 auto;
+        }
+
+        /* Header Styling */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+            border-bottom: 1px solid var(--card-border);
+            padding-bottom: 1.5rem;
+        }
+
+        .logo-section h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            letter-spacing: -0.02em;
+            margin-bottom: 0.25rem;
+        }
+
+        .logo-section p {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+
+        .actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .btn {
+            background: #18181b;
+            border: 1px solid var(--card-border);
+            color: var(--text-primary);
+            padding: 0.6rem 1rem;
+            border-radius: 6px;
+            font-weight: 500;
+            font-size: 0.9rem;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: var(--transition);
+        }
+
+        .btn:hover {
+            background: #27272a;
+            border-color: #3f3f46;
+        }
+
+        .btn-primary {
+            background: var(--text-primary);
+            color: var(--bg-color);
+            border: 1px solid var(--text-primary);
+            font-weight: 600;
+        }
+
+        .btn-primary:hover {
+            background: #e4e4e7;
+            border-color: #e4e4e7;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 8px;
+            padding: 1.5rem;
+            transition: var(--transition);
+            cursor: pointer;
+        }
+
+        .stat-card:hover {
+            border-color: #3f3f46;
+        }
+
+        .stat-card.active {
+            border-color: #52525b;
+            background: #202024;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-val {
+            font-size: 2.25rem;
+            font-weight: 700;
+            line-height: 1;
+            margin-bottom: 0.25rem;
+            color: var(--text-primary);
+        }
+
+        .stat-desc {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        /* Filter & Search Bar */
+        .controls-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 8px;
+            padding: 0.8rem 1.1rem;
+            margin-bottom: 1.5rem;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 0.25rem;
+            overflow-x: auto;
+            scrollbar-width: none;
+        }
+        .tabs::-webkit-scrollbar {
+            display: none;
+        }
+
+        .tab-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            padding: 0.55rem 0.95rem;
+            border-radius: 6px;
+            font-weight: 500;
+            font-size: 0.925rem;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: var(--transition);
+        }
+
+        .tab-btn:hover {
+            color: var(--text-primary);
+            background: #27272a;
+        }
+
+        .tab-btn.active {
+            color: var(--text-primary);
+            background: #27272a;
+        }
+
+        .search-wrapper {
+            position: relative;
+            flex-grow: 1;
+            max-width: 320px;
+            min-width: 200px;
+        }
+
+        .search-input {
+            width: 100%;
+            background: #09090b;
+            border: 1px solid var(--card-border);
+            border-radius: 6px;
+            padding: 0.55rem 0.85rem 0.55rem 2.2rem;
+            color: var(--text-primary);
+            font-family: inherit;
+            font-size: 0.925rem;
+            transition: var(--transition);
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #52525b;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 0.8rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+            pointer-events: none;
+            width: 16px;
+            height: 16px;
+        }
+
+        /* List & Grid View */
+        .list-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.75rem;
+            padding: 0 0.25rem;
+        }
+
+        .list-title {
+            font-size: 1.15rem;
+            font-weight: 600;
+        }
+
+        .list-count {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .users-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .user-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 8px;
+            padding: 0.85rem 1.25rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: var(--transition);
+        }
+
+        .user-card:hover {
+            border-color: #3f3f46;
+            background: #202024;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 0.85rem;
+            overflow: hidden;
+            flex-grow: 1;
+        }
+
+        .user-avatar {
+            width: 38px;
+            height: 38px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.95rem;
+            color: var(--text-primary);
+            background: #27272a;
+            border: 1px solid var(--card-border);
+            flex-shrink: 0;
+            text-transform: uppercase;
+        }
+
+        .user-details {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            overflow: hidden;
+            flex-grow: 1;
+            justify-content: space-between;
+            padding-right: 2rem;
+        }
+
+        .username {
+            font-weight: 600;
+            font-size: 1.05rem;
+            color: var(--text-primary);
+            text-decoration: none;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            transition: var(--transition);
+        }
+
+        .username:hover {
+            color: var(--primary);
+            text-decoration: underline;
+        }
+
+        .timestamp {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            white-space: nowrap;
+        }
+
+        .action-area {
+            flex-shrink: 0;
+        }
+
+        .profile-btn {
+            background: #18181b;
+            color: var(--text-primary);
+            border: 1px solid var(--card-border);
+            padding: 0.5rem 0.95rem;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            text-decoration: none;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            transition: var(--transition);
+        }
+
+        .profile-btn:hover {
+            background: #27272a;
+            border-color: #3f3f46;
+        }
+
+        /* Empty State */
+        .empty-state {
+            background: var(--card-bg);
+            border: 1px dashed var(--card-border);
+            border-radius: 8px;
+            padding: 3rem 1.5rem;
+            text-align: center;
+        }
+
+        .empty-state svg {
+            width: 36px;
+            height: 36px;
+            color: var(--text-secondary);
+            margin-bottom: 0.75rem;
+            opacity: 0.5;
+        }
+
+        .empty-state h3 {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .empty-state p {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+
+        /* Toast notification */
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: #18181b;
+            border: 1px solid var(--card-border);
+            border-radius: 8px;
+            padding: 0.75rem 1.25rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            z-index: 1000;
+            transform: translateY(150%);
+            transition: transform 0.2s ease-in-out;
+        }
+
+        .toast.show {
+            transform: translateY(0);
+        }
+
+        .toast-icon {
+            color: var(--success);
+        }
+
+        .toast-text {
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        /* Loading spinner */
+        .spinner {
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-top: 2px solid var(--text-primary);
+            border-radius: 50%;
+            width: 12px;
+            height: 12px;
+            animation: spin 0.8s linear infinite;
+            display: inline-block;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .actions {
+                width: 100%;
+                justify-content: flex-start;
+            }
+            .controls-row {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .search-wrapper {
+                max-width: none;
+            }
+            .user-details {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.1rem;
+                padding-right: 0;
+            }
+            .username {
+                font-size: 0.9rem;
+            }
+            .timestamp {
+                font-size: 0.75rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header>
+            <div class="logo-section">
+                <h1>InstaTrack</h1>
+                <p>Simple followers & unfollowers tracking from local JSON data</p>
+            </div>
+            <div class="actions">
+                <button id="export-btn" class="btn" onclick="copyUsernamesToClipboard()">
+                    <svg style="width: 14px; height: 14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path>
+                    </svg>
+                    Copy Usernames
+                </button>
+                <button id="reload-btn" class="btn btn-primary" onclick="reloadData()">
+                    <svg id="reload-icon" style="width: 14px; height: 14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 1121.21 7.89M9 11l3-3 3 3m-3-3v12"></path>
+                    </svg>
+                    <span id="reload-text">Reload Data</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Metrics Grid -->
+        <section class="stats-grid">
+            <!-- Unfollowers -->
+            <div class="stat-card unfollowers active" onclick="switchCategory('unfollowers')">
+                <div class="stat-label">Not Following Back</div>
+                <div class="stat-val" id="count-unfollowers">0</div>
+                <div class="stat-desc">You follow, they don't follow back</div>
+            </div>
+            <!-- Fans -->
+            <div class="stat-card fans" onclick="switchCategory('fans')">
+                <div class="stat-label">You Don't Follow Back</div>
+                <div class="stat-val" id="count-fans">0</div>
+                <div class="stat-desc">They follow, you don't follow back</div>
+            </div>
+            <!-- Mutuals -->
+            <div class="stat-card mutuals" onclick="switchCategory('mutuals')">
+                <div class="stat-label">Mutual Followers</div>
+                <div class="stat-val" id="count-mutuals">0</div>
+                <div class="stat-desc">Both follow each other</div>
+            </div>
+            <!-- Recently Unfollowed -->
+            <div class="stat-card unfollowed" onclick="switchCategory('unfollowed')">
+                <div class="stat-label">Recently Unfollowed</div>
+                <div class="stat-val" id="count-unfollowed">0</div>
+                <div class="stat-desc">Profiles you recently unfollowed</div>
+            </div>
+            <!-- Recent Follow Requests -->
+            <div class="stat-card requests" onclick="switchCategory('requests')">
+                <div class="stat-label">Recent Requests</div>
+                <div class="stat-val" id="count-requests">0</div>
+                <div class="stat-desc">Recent incoming follow requests</div>
+            </div>
+        </section>
+
+        <!-- Filters and Search Bar -->
+        <section class="controls-row">
+            <div class="tabs">
+                <button class="tab-btn active" id="tab-unfollowers" onclick="switchCategory('unfollowers')">Not Following Back</button>
+                <button class="tab-btn" id="tab-fans" onclick="switchCategory('fans')">Fans</button>
+                <button class="tab-btn" id="tab-mutuals" onclick="switchCategory('mutuals')">Mutuals</button>
+                <button class="tab-btn" id="tab-unfollowed" onclick="switchCategory('unfollowed')">Recently Unfollowed</button>
+                <button class="tab-btn" id="tab-requests" onclick="switchCategory('requests')">Recent Requests</button>
+            </div>
+            <div class="search-wrapper">
+                <svg class="search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                </svg>
+                <input type="text" id="search-input" class="search-input" placeholder="Search usernames..." oninput="filterUsers()">
+            </div>
+        </section>
+
+        <!-- User List Section -->
+        <section>
+            <div class="list-header">
+                <div class="list-title" id="list-current-title">Not Following Back</div>
+                <div class="list-count" id="list-count-display">Showing 0 accounts</div>
+            </div>
+
+            <div class="users-grid" id="users-container">
+                <!-- User cards will be dynamically injected here by Javascript -->
+            </div>
+        </section>
+    </div>
+
+    <!-- Toast Component -->
+    <div id="toast" class="toast">
+        <svg class="toast-icon" style="width: 16px; height: 16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+        </svg>
+        <div id="toast-text" class="toast-text">Success message</div>
+    </div>
+
+    <!-- Inject data from Go -->
+    <script>
+        // Data injected by Go template engine
+        const data = {
+            unfollowers: [
+                {{range .Unfollowers}}
+                { username: "{{.Username}}", href: "{{.Href}}", date: "{{.Date}}", timestamp: {{.Timestamp}} },
+                {{end}}
+            ],
+            fans: [
+                {{range .Fans}}
+                { username: "{{.Username}}", href: "{{.Href}}", date: "{{.Date}}", timestamp: {{.Timestamp}} },
+                {{end}}
+            ],
+            mutuals: [
+                {{range .Mutuals}}
+                { username: "{{.Username}}", href: "{{.Href}}", date: "{{.Date}}", timestamp: {{.Timestamp}} },
+                {{end}}
+            ],
+            unfollowed: [
+                {{range .RecentlyUnfollowed}}
+                { username: "{{.Username}}", href: "{{.Href}}", date: "{{.Date}}", timestamp: {{.Timestamp}} },
+                {{end}}
+            ],
+            requests: [
+                {{range .RecentFollowRequests}}
+                { username: "{{.Username}}", href: "{{.Href}}", date: "{{.Date}}", timestamp: {{.Timestamp}} },
+                {{end}}
+            ]
+        };
+
+        let currentCategory = 'unfollowers';
+
+        // Setup count badges on load
+        document.getElementById('count-unfollowers').innerText = data.unfollowers.length;
+        document.getElementById('count-fans').innerText = data.fans.length;
+        document.getElementById('count-mutuals').innerText = data.mutuals.length;
+        document.getElementById('count-unfollowed').innerText = data.unfollowed.length;
+        document.getElementById('count-requests').innerText = data.requests.length;
+
+        // Render cards for the current category and search query
+        function render() {
+            const container = document.getElementById('users-container');
+            const searchVal = document.getElementById('search-input').value.toLowerCase().trim();
+            const list = data[currentCategory] || [];
+            
+            // Filter list based on search
+            const filtered = list.filter(user => user.username.toLowerCase().includes(searchVal));
+            
+            // Update stats display
+            const titleElement = document.getElementById('list-current-title');
+            const countElement = document.getElementById('list-count-display');
+            
+            const titles = {
+                unfollowers: 'Not Following Back',
+                fans: "You Don't Follow Back (Fans)",
+                mutuals: 'Mutual Followers',
+                unfollowed: 'Recently Unfollowed',
+                requests: 'Recent Follow Requests'
+            };
+            
+            titleElement.innerText = titles[currentCategory];
+            countElement.innerText = `Showing ${filtered.length} of ${list.length} accounts`;
+
+            container.innerHTML = '';
+
+            if (filtered.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        <h3>No Accounts Found</h3>
+                        <p>${searchVal ? 'Try adjusting your search keywords.' : 'This list is currently empty.'}</p>
+                    </div>
+                `;
+                return;
+            }
+
+            filtered.forEach(user => {
+                const card = document.createElement('div');
+                card.className = 'user-card';
+                const initial = user.username.charAt(0);
+                
+                card.innerHTML = `
+                    <div class="user-info">
+                        <div class="user-avatar">${initial}</div>
+                        <div class="user-details">
+                            <a href="${user.href}" target="_blank" class="username" title="Visit Profile">${user.username}</a>
+                            <div class="timestamp">${user.date ? user.date : 'Unknown date'}</div>
+                        </div>
+                    </div>
+                    <div class="action-area">
+                        <a href="${user.href}" target="_blank" class="profile-btn">
+                            <span>Open Profile</span>
+                            <svg style="width: 12px; height: 12px;" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+                            </svg>
+                        </a>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function switchCategory(category) {
+            currentCategory = category;
+            
+            // Update stat cards visual active state
+            document.querySelectorAll('.stat-card').forEach(card => {
+                card.classList.remove('active');
+            });
+            document.querySelector(`.stat-card.${category}`).classList.add('active');
+
+            // Update tab button visual active state
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.getElementById(`tab-${category}`).classList.add('active');
+
+            render();
+        }
+
+        function filterUsers() {
+            render();
+        }
+
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-text').innerText = message;
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        function copyUsernamesToClipboard() {
+            const list = data[currentCategory] || [];
+            const searchVal = document.getElementById('search-input').value.toLowerCase().trim();
+            const filtered = list.filter(user => user.username.toLowerCase().includes(searchVal));
+            
+            if (filtered.length === 0) {
+                showToast("No usernames to copy");
+                return;
+            }
+
+            const usernames = filtered.map(u => u.username).join('\n');
+            navigator.clipboard.writeText(usernames).then(() => {
+                showToast(`Copied ${filtered.length} usernames!`);
+            }).catch(err => {
+                console.error('Failed to copy text: ', err);
+                showToast("Failed to copy usernames");
+            });
+        }
+
+        function reloadData() {
+            const reloadBtn = document.getElementById('reload-btn');
+            const reloadIcon = document.getElementById('reload-icon');
+            const reloadText = document.getElementById('reload-text');
+            
+            // Add loading spinner state
+            reloadBtn.disabled = true;
+            reloadText.innerText = "Reloading...";
+            reloadIcon.outerHTML = '<span id="reload-icon" class="spinner"></span>';
+            
+            fetch('/reload')
+                .then(response => {
+                    if (response.ok) {
+                        return response.json();
+                    }
+                    throw new Error('Network response was not ok');
+                })
+                .then(json => {
+                    showToast("Data reloaded successfully!");
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1000);
+                })
+                .catch(error => {
+                    console.error('Error reloading data:', error);
+                    showToast("Failed to reload data");
+                    window.location.reload();
+                });
+        }
+
+        // Initial render
+        render();
+    </script>
+</body>
+</html>
